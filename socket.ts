@@ -1,20 +1,16 @@
-import Webs from './webActions.js'
-console.log(Webs)
-const webs = new Webs()
+import { webActions } from './webActions'
+import { IExtendedWebSocket, IExtendedRawData } from 'interfaces'
+const webs = new webActions()
 import WebSocketServer from 'ws'
-// const Webs = require('./webActions.js')
-// console.log(Webs)
-// const webs = new Webs()
-// const WebSocketServer = new require('ws')
 
 // WebSocket-сервер на порту 8081
 const webServer = new WebSocketServer.Server({
   port: 8081
 })
-webServer.on('connection', (ws) => {
+webServer.on('connection', (ws: IExtendedWebSocket) => {
   webs.addClient(ws)
 
-  ws.on('message', (message) => {
+  ws.on('message', (message: IExtendedRawData) => {
     console.log('получено сообщение', message, ws.clientName)
     const chunks = message.split(':')
     const action = chunks[0]
@@ -35,8 +31,8 @@ webServer.on('connection', (ws) => {
         break
 
       case webs.actType.range.name:
-        response = webs.setMessage(webs.actType.result.name, isInRange2)
         const isInRange2 = webs.calcRange(range, webs.actType.vSlash.rangeX)
+        response = webs.setMessage([webs.actType.result.name, isInRange2])
         console.log('isInRange2', isInRange2)
         webs.sendToAll(response)
         break
