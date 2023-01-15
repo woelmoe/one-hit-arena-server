@@ -1,8 +1,11 @@
 import { EventEmitter } from 'node:events'
-import { IExtendedWebSocket, WebActions } from './interfaces'
+import { IExtendedWebSocket, WebActions, ClientSide } from './interfaces'
 
 export class webActions extends EventEmitter {
-  clients = {}
+  clients = {
+    right: null,
+    left: null
+  }
   activeInteractions = []
 
   actType = {
@@ -24,22 +27,40 @@ export class webActions extends EventEmitter {
     defend: {
       name: WebActions.defend
     },
-    moveStop: {
-      name: WebActions.stopMove
+    coordX: {
+      name: WebActions.coordX
     },
-    moveForward: {
-      name: WebActions.moveForward
-    },
-    moveBack: {
-      name: WebActions.moveBack
+    coordY: {
+      name: WebActions.coordY
     }
   }
 
-  addClient(client: IExtendedWebSocket) {
-    const id = Date.now()
-    this.clients[id] = client
-    this.clients[id]._id = id
-    console.log('подключен пользователь ' + this.clients[id]._id)
+  handleClientSideAuth(side: ClientSide, client: IExtendedWebSocket): boolean {
+    let result = false
+    console.log('side:', side)
+    switch (side) {
+      case ClientSide.leftSide:
+        if (this.clients.left === null) {
+          this.clients.left = client
+          this.clients.left.id = ClientSide.leftSide
+          result = true
+          console.log('подключен пользователь ' + this.clients.left.id)
+        }
+        break
+      case ClientSide.rightSide:
+        if (this.clients.right === null) {
+          this.clients.right = client
+          this.clients.right.id = ClientSide.rightSide
+          result = true
+          console.log('подключен пользователь ' + this.clients.right.id)
+        }
+        break
+
+      default:
+        console.log('unknown result')
+        break
+    }
+    return result
   }
   calcRange(range: string, targetX: number) {
     return +range <= targetX
@@ -48,20 +69,13 @@ export class webActions extends EventEmitter {
     return chunks.join(':')
   }
   sendToOpponent(clientWS: IExtendedWebSocket, message: string) {
-    Object.entries(this.clients).forEach(
-      (item: [string, IExtendedWebSocket]) => {
-        if (item[1]._id !== clientWS._id) {
-          item[1].send(message)
-        }
-      }
-    )
+    if (clientWS.clientSide === ClientSide.leftSide)
+      this.clients.right.send(message)
+    else this.clients.left.send(message)
   }
   sendToAll(message: string) {
-    Object.entries(this.clients).forEach(
-      (item: [string, IExtendedWebSocket]) => {
-        item[1].send(message)
-      }
-    )
+    if (this.clients.left) this.clients.left.send(message)
+    if (this.clients.right) this.clients.right.send(message)
   }
   setupResult(isSuccess: boolean) {
     const calcInteractions = () => {
@@ -98,8 +112,9 @@ export class webActions extends EventEmitter {
     this.activeInteractions.length = 0
   }
   closeConnection(ws: IExtendedWebSocket) {
-    delete this.clients[ws._id]
-    console.log('соединение закрыто ' + ws._id)
+    if (ws.clientSide === ClientSide.leftSide) this.clients.left = null
+    else this.clients.right = null
+    console.log('соединение закрыто ' + ws)
     this.clearData()
   }
 }

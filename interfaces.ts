@@ -1,22 +1,25 @@
 import { WebSocket } from 'ws'
 
-export interface IExtendedWebSocket extends WebSocket {
-  clientName: string
-  _id: string
-}
 export interface IExtendedRawData {
   split: Function
 }
 
+export enum ClientSide {
+  rightSide = 'rightSide',
+  leftSide = 'leftSide'
+}
 export enum WebActions {
+  auth = 'auth',
   checkClient = 'checkClient',
-  moveForward = 'moveF',
-  moveBack = 'moveB',
-  stopMove = 'moveStop',
+  coordX = 'x',
+  coordY = 'y',
   vSlash = 'vSlash',
   result = 'result',
   range = 'range',
   defend = 'defend',
   hBlock = 'hBlock',
   response = 'response'
+}
+export interface IExtendedWebSocket extends WebSocket {
+  clientSide: ClientSide
 }

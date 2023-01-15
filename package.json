@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "dev": "tsc -w",
-    "start": "node ."
+    "w": "tsc -w",
+    "rs": "nodemon dist/socket"
   },
   "repository": {
     "type": "git",

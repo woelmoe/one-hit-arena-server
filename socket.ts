@@ -1,5 +1,10 @@
 import { webActions } from './webActions'
-import { IExtendedWebSocket, IExtendedRawData } from 'interfaces'
+import {
+  IExtendedWebSocket,
+  IExtendedRawData,
+  WebActions,
+  ClientSide
+} from './interfaces'
 const webs = new webActions()
 import WebSocketServer from 'ws'
 
@@ -8,46 +13,53 @@ const webServer = new WebSocketServer.Server({
   port: 8081
 })
 webServer.on('connection', (ws: IExtendedWebSocket) => {
-  webs.addClient(ws)
-
   ws.on('message', (message: IExtendedRawData) => {
     console.log('получено сообщение', message)
 
     const chunks = message.split(':')
     const action = chunks[0]
-    const range = chunks[1]
+    const contextData = chunks[1]
     const isResponse = !!chunks[2]
+    const coords = chunks[3]
 
     let response = ''
     switch (action) {
-      case webs.actType.vSlash.name:
-        const isInRange1 = webs.calcRange(range, webs.actType.vSlash.rangeX)
+      case WebActions.auth:
+        const isAuthed = webs.handleClientSideAuth(contextData, ws)
+        response = webs.setMessage([WebActions.auth, contextData, isAuthed])
+        webs.sendToAll(response)
+        break
+
+      case WebActions.vSlash:
+        const isInRange1 = webs.calcRange(
+          contextData,
+          webs.actType.vSlash.rangeX
+        )
         console.log('isResponse', isResponse)
         if (isResponse) {
           webs.setupResult(isInRange1)
         } else {
-          response = webs.setMessage([webs.actType.vSlash.name])
+          response = webs.setMessage([WebActions.vSlash])
           webs.sendToAll(response)
         }
         break
 
-      case webs.actType.range.name:
-        const isInRange2 = webs.calcRange(range, webs.actType.vSlash.rangeX)
-        response = webs.setMessage([webs.actType.result.name, isInRange2])
+      case WebActions.range:
+        const isInRange2 = webs.calcRange(
+          contextData,
+          webs.actType.vSlash.rangeX
+        )
+        response = webs.setMessage([WebActions.result, isInRange2])
         console.log('isInRange2', isInRange2)
         webs.sendToAll(response)
         break
 
-      case webs.actType.moveForward.name:
-        response = webs.actType.moveForward.name
+      case WebActions.coordX:
+        response = webs.setMessage([WebActions.coordX, null, null, coords])
         webs.sendToOpponent(ws, response)
         break
-      case webs.actType.moveBack.name:
-        response = webs.actType.moveBack.name
-        webs.sendToOpponent(ws, response)
-        break
-      case webs.actType.moveStop.name:
-        response = webs.actType.moveStop.name
+      case WebActions.coordY:
+        response = webs.setMessage([WebActions.coordY, null, null, coords])
         webs.sendToOpponent(ws, response)
         break
     }
