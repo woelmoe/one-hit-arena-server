@@ -38,7 +38,6 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
           contextData,
           webs.actType.vSlash.rangeX
         )
-        console.log('isResponse', isResponse)
         if (isResponse) {
           webs.setupResult(isInRange1)
         } else {

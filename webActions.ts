@@ -93,16 +93,12 @@ export class webActions extends EventEmitter {
       if (this.activeInteractions[0] && this.activeInteractions[1]) {
         message = this.setMessage([
           this.actType.vSlash.name,
-          null,
-          null,
           this.actType.result.name,
           true
         ])
       } else {
         message = this.setMessage([
           this.actType.vSlash.name,
-          null,
-          null,
           this.actType.result.name,
           false
         ])
