@@ -24,12 +24,15 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
 
     let response = ''
     switch (action) {
+      /** auth */
       case WebActions.auth:
-        const isAuthed = webs.handleClientSideAuth(contextData, ws)
-        response = webs.setMessage([WebActions.auth, contextData, isAuthed])
-        webs.sendToAll(response)
+        const authStatus = webs.handleClientSideAuth(contextData, ws)
+        console.log('isAuthed', authStatus)
+        response = webs.setMessage([WebActions.auth, contextData, authStatus])
+        ws.send(response)
         break
 
+      /** vertical slash */
       case WebActions.vSlash:
         const isInRange1 = webs.calcRange(
           contextData,
@@ -44,6 +47,7 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
         }
         break
 
+      /** handle range */
       case WebActions.range:
         const isInRange2 = webs.calcRange(
           contextData,
@@ -54,18 +58,19 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
         webs.sendToAll(response)
         break
 
+      /** movement */
       case WebActions.coordX:
         response = webs.setMessage([WebActions.coordX, null, null, coords])
-        webs.sendToOpponent(ws, response)
+        webs.sendToOpponent(ws.clientSide, response)
         break
       case WebActions.coordY:
         response = webs.setMessage([WebActions.coordY, null, null, coords])
-        webs.sendToOpponent(ws, response)
+        webs.sendToOpponent(ws.clientSide, response)
         break
     }
   })
 
   ws.on('close', () => {
-    webs.closeConnection(ws)
+    webs.closeConnection(ws.clientSide)
   })
 })

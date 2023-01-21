@@ -23,3 +23,38 @@ export enum WebActions {
 export interface IExtendedWebSocket extends WebSocket {
   clientSide: ClientSide
 }
+
+export interface IActType {
+  checkClient: {
+    name: WebActions
+  }
+  vSlash: {
+    name: WebActions
+    rangeX: number
+  }
+  range: {
+    name: WebActions
+  }
+  result: {
+    name: WebActions
+  }
+  defend: {
+    name: WebActions
+  }
+  coordX: {
+    name: WebActions
+  }
+  coordY: {
+    name: WebActions
+  }
+}
+
+export interface IClients {
+  right: IExtendedWebSocket | null,
+  left: IExtendedWebSocket | null
+}
+
+export enum AuthResponse {
+  granted = 'granted',
+  denied = 'denied'
+}

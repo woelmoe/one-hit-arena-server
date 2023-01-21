@@ -1,14 +1,21 @@
 import { EventEmitter } from 'node:events'
-import { IExtendedWebSocket, WebActions, ClientSide } from './interfaces'
+import {
+  IExtendedWebSocket,
+  WebActions,
+  ClientSide,
+  IClients,
+  IActType,
+  AuthResponse
+} from './interfaces'
 
 export class webActions extends EventEmitter {
-  clients = {
+  clients: IClients = {
     right: null,
     left: null
   }
   activeInteractions = []
 
-  actType = {
+  actType: IActType = {
     checkClient: {
       name: WebActions.checkClient
     },
@@ -20,9 +27,7 @@ export class webActions extends EventEmitter {
       name: WebActions.range
     },
     result: {
-      name: WebActions.result,
-      attacker: 'a',
-      defender: 'd'
+      name: WebActions.result
     },
     defend: {
       name: WebActions.defend
@@ -35,24 +40,23 @@ export class webActions extends EventEmitter {
     }
   }
 
-  handleClientSideAuth(side: ClientSide, client: IExtendedWebSocket): boolean {
-    let result = false
-    console.log('side:', side)
+  handleClientSideAuth(side: ClientSide, ws: IExtendedWebSocket): AuthResponse {
+    let result = AuthResponse.denied
     switch (side) {
       case ClientSide.leftSide:
         if (this.clients.left === null) {
-          this.clients.left = client
-          this.clients.left.id = ClientSide.leftSide
-          result = true
-          console.log('подключен пользователь ' + this.clients.left.id)
+          ws.clientSide = ClientSide.leftSide
+          this.clients.left = ws
+          result = AuthResponse.granted
+          console.log('подключен пользователь ' + side)
         }
         break
       case ClientSide.rightSide:
         if (this.clients.right === null) {
-          this.clients.right = client
-          this.clients.right.id = ClientSide.rightSide
-          result = true
-          console.log('подключен пользователь ' + this.clients.right.id)
+          ws.clientSide = ClientSide.rightSide
+          this.clients.right = ws
+          result = AuthResponse.granted
+          console.log('подключен пользователь ' + side)
         }
         break
 
@@ -68,10 +72,16 @@ export class webActions extends EventEmitter {
   setMessage(chunks: any[]) {
     return chunks.join(':')
   }
-  sendToOpponent(clientWS: IExtendedWebSocket, message: string) {
-    if (clientWS.clientSide === ClientSide.leftSide)
+  sendToOpponent(side: ClientSide, message: string) {
+    if (side === ClientSide.leftSide) this.sendToRight(message)
+    else this.sendToRight(message)
+  }
+  sendToLeft(message: string) {
+    if (this.clients.left) this.clients.left.send(message)
+  }
+  sendToRight(message: string) {
+    if (this.clients.right && this.clients.right)
       this.clients.right.send(message)
-    else this.clients.left.send(message)
   }
   sendToAll(message: string) {
     if (this.clients.left) this.clients.left.send(message)
@@ -111,10 +121,11 @@ export class webActions extends EventEmitter {
   clearData() {
     this.activeInteractions.length = 0
   }
-  closeConnection(ws: IExtendedWebSocket) {
-    if (ws.clientSide === ClientSide.leftSide) this.clients.left = null
-    else this.clients.right = null
-    console.log('соединение закрыто ' + ws)
+  closeConnection(side: ClientSide) {
+    console.log('соединение закрыто ' + side)
+    if (side === ClientSide.leftSide) {
+      this.clients.left = null
+    } else this.clients.right = null
     this.clearData()
   }
 }
