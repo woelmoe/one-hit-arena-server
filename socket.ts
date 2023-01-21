@@ -15,6 +15,7 @@ const webServer = new WebSocketServer.Server({
 webServer.on('connection', (ws: IExtendedWebSocket) => {
   ws.on('message', (message: IExtendedRawData) => {
     console.log('получено сообщение', message)
+    console.log('сторона', ws.clientSide)
 
     const chunks = message.split(':')
     const action = chunks[0]
@@ -59,11 +60,11 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
 
       /** movement */
       case WebActions.coordX:
-        response = webs.setMessage([WebActions.coordX, null, null, coords])
+        response = webs.setMessage([WebActions.coordX, null, coords])
         webs.sendToOpponent(ws.clientSide, response)
         break
       case WebActions.coordY:
-        response = webs.setMessage([WebActions.coordY, null, null, coords])
+        response = webs.setMessage([WebActions.coordY, null, coords])
         webs.sendToOpponent(ws.clientSide, response)
         break
     }

@@ -74,7 +74,7 @@ export class webActions extends EventEmitter {
   }
   sendToOpponent(side: ClientSide, message: string) {
     if (side === ClientSide.leftSide) this.sendToRight(message)
-    else this.sendToRight(message)
+    else this.sendToLeft(message)
   }
   sendToLeft(message: string) {
     if (this.clients.left) this.clients.left.send(message)
