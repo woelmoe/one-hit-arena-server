@@ -14,6 +14,8 @@ export enum WebActions {
   coordX = 'x',
   coordY = 'y',
   vSlash = 'vSlash',
+  opponent = 'opponent',
+  vSlashStop = 'vSlashStop',
   result = 'result',
   range = 'range',
   defend = 'defend',
@@ -50,7 +52,7 @@ export interface IActType {
 }
 
 export interface IClients {
-  right: IExtendedWebSocket | null,
+  right: IExtendedWebSocket | null
   left: IExtendedWebSocket | null
 }
 

@@ -24,6 +24,8 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
     const coords = chunks[3]
 
     let response = ''
+    let responseOpponent = ''
+
     switch (action) {
       /** auth */
       case WebActions.auth:
@@ -42,9 +44,21 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
         if (isResponse) {
           webs.setupResult(isInRange1)
         } else {
-          response = webs.setMessage([WebActions.vSlash])
-          webs.sendToAll(response)
+          response = webs.setMessage([WebActions.vSlash, null, ws.clientSide])
+          responseOpponent = webs.setMessage([
+            WebActions.vSlash,
+            WebActions.opponent,
+            ws.clientSide
+          ])
+          webs.sendToCurrent(ws, response)
+          webs.sendToOpponent(ws.clientSide, responseOpponent)
         }
+        break
+
+      /** vertical slash stop */
+      case WebActions.vSlashStop:
+        response = webs.setMessage([WebActions.vSlashStop])
+        webs.sendToOpponent(ws.clientSide, response)
         break
 
       /** handle range */

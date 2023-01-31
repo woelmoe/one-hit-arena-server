@@ -72,6 +72,9 @@ export class webActions extends EventEmitter {
   setMessage(chunks: any[]) {
     return chunks.join(':')
   }
+  sendToCurrent(ws: IExtendedWebSocket, message: string) {
+    ws.send(message)
+  }
   sendToOpponent(side: ClientSide, message: string) {
     if (side === ClientSide.leftSide) this.sendToRight(message)
     else this.sendToLeft(message)
