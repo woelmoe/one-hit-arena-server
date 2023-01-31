@@ -9,6 +9,10 @@ export enum ClientSide {
   leftSide = 'leftSide'
 }
 export enum WebActions {
+  idle = 'idle',
+  moveF = 'moveF',
+  moveB = 'moveB',
+  jump = 'jump',
   auth = 'auth',
   checkClient = 'checkClient',
   coordX = 'x',

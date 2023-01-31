@@ -61,6 +61,26 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
         webs.sendToOpponent(ws.clientSide, response)
         break
 
+      /** move forward */
+      case WebActions.moveF:
+        webs.sendToOpponent(ws.clientSide, WebActions.moveF)
+        break
+
+      /** move back */
+      case WebActions.moveB:
+        webs.sendToOpponent(ws.clientSide, WebActions.moveB)
+        break
+
+      /** jump */
+      case WebActions.jump:
+        webs.sendToOpponent(ws.clientSide, WebActions.jump)
+        break
+
+      /** idle */
+      case WebActions.idle:
+        webs.sendToOpponent(ws.clientSide, WebActions.idle)
+        break
+
       /** handle range */
       case WebActions.range:
         const isInRange2 = webs.calcRange(
