@@ -13,6 +13,7 @@ export enum WebActions {
   moveF = 'moveF',
   moveB = 'moveB',
   jump = 'jump',
+  jumpEnd = 'jumpEnd',
   auth = 'auth',
   checkClient = 'checkClient',
   coordX = 'x',

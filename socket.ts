@@ -75,6 +75,9 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
       case WebActions.jump:
         webs.sendToOpponent(ws.clientSide, WebActions.jump)
         break
+      case WebActions.jumpEnd:
+        webs.sendToOpponent(ws.clientSide, WebActions.jumpEnd)
+        break
 
       /** idle */
       case WebActions.idle:
