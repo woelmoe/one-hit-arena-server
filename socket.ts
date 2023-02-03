@@ -16,7 +16,6 @@ const webServer = new WebSocketServer.Server({
 webServer.on('connection', (ws: IExtendedWebSocket) => {
   ws.on('message', (message: IExtendedRawData) => {
     console.log('получено сообщение', message)
-    console.log('сторона', ws.clientSide)
 
     const chunks = message.split(':')
     const action = chunks[0]
@@ -38,12 +37,10 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
 
       /** vertical slash */
       case WebActions.vSlash:
-        const isInRange1 = webs.calcRange(
-          contextData,
-          webs.actType.vSlash.rangeX
-        )
+        const hit = contextData === 'true'
+        webs.setupActiveInteractions(hit)
         if (isResponse) {
-          const result = webs.setupVSlashResult(isInRange1)
+          const result = webs.setupVSlashResult()
           webs.sendToAll(result)
         } else {
           response = webs.setMessage([WebActions.vSlash, null, ws.clientSide])

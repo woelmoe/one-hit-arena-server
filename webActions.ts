@@ -90,7 +90,10 @@ export class WebActionsClass extends EventEmitter {
     if (this.clients.left) this.clients.left.send(message)
     if (this.clients.right) this.clients.right.send(message)
   }
-  setupVSlashResult(isSuccess: boolean): string {
+  setupActiveInteractions(isSuccess: boolean) {
+    this.activeInteractions.push(isSuccess)
+  }
+  setupVSlashResult(): string {
     let message = ''
     if (this.activeInteractions[0] && this.activeInteractions[1]) {
       message = this.setMessage([
@@ -105,8 +108,7 @@ export class WebActionsClass extends EventEmitter {
         false
       ])
     }
-    this.activeInteractions.push(isSuccess)
-    if (this.activeInteractions.length > 2) this.activeInteractions.length = 0
+    if (this.activeInteractions.length > 1) this.activeInteractions.length = 0
     return message
   }
   clearData() {
