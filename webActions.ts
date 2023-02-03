@@ -8,7 +8,7 @@ import {
   AuthResponse
 } from './interfaces'
 
-export class webActions extends EventEmitter {
+export class WebActionsClass extends EventEmitter {
   clients: IClients = {
     right: null,
     left: null
@@ -90,32 +90,24 @@ export class webActions extends EventEmitter {
     if (this.clients.left) this.clients.left.send(message)
     if (this.clients.right) this.clients.right.send(message)
   }
-  setupResult(isSuccess: boolean) {
-    const calcInteractions = () => {
-      let message = ''
-      if (this.activeInteractions[0] && this.activeInteractions[1]) {
-        message = this.setMessage([
-          this.actType.vSlash.name,
-          this.actType.result.name,
-          true
-        ])
-      } else {
-        message = this.setMessage([
-          this.actType.vSlash.name,
-          this.actType.result.name,
-          false
-        ])
-      }
-      return message
-    }
-    console.log(this.activeInteractions.length)
-    this.activeInteractions.push(isSuccess)
-    if (this.activeInteractions.length < 2) {
-      return
+  setupVSlashResult(isSuccess: boolean): string {
+    let message = ''
+    if (this.activeInteractions[0] && this.activeInteractions[1]) {
+      message = this.setMessage([
+        this.actType.vSlash.name,
+        this.actType.result.name,
+        true
+      ])
     } else {
-      this.sendToAll(calcInteractions())
-      this.activeInteractions.length = 0
+      message = this.setMessage([
+        this.actType.vSlash.name,
+        this.actType.result.name,
+        false
+      ])
     }
+    this.activeInteractions.push(isSuccess)
+    if (this.activeInteractions.length > 2) this.activeInteractions.length = 0
+    return message
   }
   clearData() {
     this.activeInteractions.length = 0

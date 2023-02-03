@@ -1,13 +1,14 @@
-import { webActions } from './webActions'
+/* eslint-disable no-case-declarations */
+import { WebActionsClass } from './webActions'
 import {
   IExtendedWebSocket,
   IExtendedRawData,
   WebActions,
   ClientSide
 } from './interfaces'
-const webs = new webActions()
 import WebSocketServer from 'ws'
 
+const webs = new WebActionsClass()
 // WebSocket-сервер на порту 8081
 const webServer = new WebSocketServer.Server({
   port: 8081
@@ -42,7 +43,8 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
           webs.actType.vSlash.rangeX
         )
         if (isResponse) {
-          webs.setupResult(isInRange1)
+          const result = webs.setupVSlashResult(isInRange1)
+          webs.sendToAll(result)
         } else {
           response = webs.setMessage([WebActions.vSlash, null, ws.clientSide])
           responseOpponent = webs.setMessage([
@@ -57,8 +59,7 @@ webServer.on('connection', (ws: IExtendedWebSocket) => {
 
       /** vertical slash stop */
       case WebActions.vSlashStop:
-        response = webs.setMessage([WebActions.vSlashStop])
-        webs.sendToOpponent(ws.clientSide, response)
+        webs.sendToOpponent(ws.clientSide, WebActions.vSlashStop)
         break
 
       /** move forward */
